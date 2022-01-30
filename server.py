@@ -14,11 +14,23 @@ server.bind(ADDR)
 conexoes = []
 mensagens = []
 
-def send_individual_message(connection):
-    pass
+def send_individual_message(conexao):
+    print(f"ENVIANDO mensagem para {conexao['addr']}")
+    for i in range(conexao['last'], len(mensagens)):
+        mensagem_de_envio = "msg=" + mensagens[1]
+        conexao['conn'].send(mensagem_de_envio)
+        conexao['last'] = i + 1
+        time.sleep(0.2)
+
+
+
 
 def send_all_message():
-    pass
+    global conexoes
+    for conexao in conexoes:
+        send_individual_message(conexao)
+
+
 
 def clients(conn, addr):
     print(f'NOVA CONEXAO um novo usuário se conectou pelo endereço: {addr}')
@@ -31,15 +43,24 @@ def clients(conn, addr):
             if(msg.startswith('nome')):
                 mensagem_separada = msg.split('=')
                 nome = mensagem_separada[1]
-                map_connexion = {
+                map_connection = {
                     "conn":conn,
                     "nome":nome,
                     "addr":addr,
-                    "last":last,
+                    "last":0,
 
                 }
 
-                conexoes.append(map_connexion)
+                conexoes.append(map_connection)
+                send_individual_message(map_connection)
+
+            elif(msg.startswith("msg=")):
+                 mensagem_separada = msg.split('=')
+                 mensagem = mensagem_separada[1]
+                 mensagem.append(mensagem)
+                 send_all_message()
+
+
 
 def start():
     print("INICIANDO socket")
