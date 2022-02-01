@@ -1,54 +1,55 @@
-from http import server
-import socket
 import threading
-import time
+import socket
 
-SERVER_IP = "127.0.0.1"
-PORT = 5050
-ADDR = (SERVER_IP, PORT)
-FORMATO = "utf-8"
+host = 'localhost' #todo socket possui um 'host' e uma 'porta'
+port = 8888
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDR)
+clients = []
 
-conexoes = []
-mensagens = []
+def main():
 
-def send_individual_message(connection):
-    pass
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 
-def send_all_message():
-    pass
+    try:
+        server.bind((host, port))
+        server.listen() #define a quantidade de conexões com o servidor | Ex: server.listen(5) = suporta 5 conexões
+    except:
+        return print('\nnão foi possível iniciar o servidor\n')
 
-def clients(conn, addr):
-    print(f'NOVA CONEXAO um novo usuário se conectou pelo endereço: {addr}')
-    global conexoes
-    nome = False
+    while True:
+        client, address = server.accept()
+        clients.append(client)
 
-    while(True):
-        msg = conn.recv(1024).decode(FORMATO)
-        if(msg):
-            if(msg.startswith('nome')):
-                mensagem_separada = msg.split('=')
-                nome = mensagem_separada[1]
-                map_connexion = {
-                    "conn":conn,
-                    "nome":nome,
-                    "addr":addr,
-                    "last":last,
+        thread1 = threading.Thread(target=messages, args=[client])
+        thread1.start()
 
-                }
+def messages(client):
+    while True:
+        try:
+            msg = client.recv(2048)
+            bcast(msg, client)
 
-                conexoes.append(map_connexion)
+        except:
+            delClient(client)
+            break
+        
 
-def start():
-    print("INICIANDO socket")
-    socket.listen()
-    while(True):
-        conn, addr = socket.accept()
-        thread = threading.Thread(target=clients, args=())
-        thread.start()
+def bcast(msg, client):
+    for clientNames in clients:
+        if clientNames != client:
+            try:
+                clientNames.send(msg)
+            except:
+                delClient(clientNames)
 
 
 
-start()
+def delClient(client):
+    clients.remove(client)
+
+
+
+
+
+
+main()
