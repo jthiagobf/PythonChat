@@ -1,15 +1,14 @@
-from concurrent.futures import thread
-import threading
+import threading #thread executa duas ou mais funções ao mesmo tempo
 import socket
 
-HOST = 'localhost'
-PORT = 8888
+host = 'localhost'
+port = 8888
 
 def main():
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        client.connect((HOST, PORT))
+        client.connect((host, port))
     except:
         return print('\nFalha ao se conectar com o servidor\n')
 
